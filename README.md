@@ -28,34 +28,34 @@ Quantara is a **FinTech platform** that combines **historical stock data** (via 
 ## 📂 Project Structure (WIP)  
 ```
 Quantara/
-├── backend/ # Core backend logic
-│ ├── data/ # Data loaders and raw/processed storage
-│ │ ├── news_raw/ # Raw scraped/collected news data
-│ │ ├── news_processed/ # Cleaned/feature-engineered news data
-│ │ └── stocks/ # Historical stock data (via yfinance)
-│ ├── db/ # Database connection + schemas
+├── backend/                            # Core backend logic
+│ ├── data/                             # Data loaders and raw/processed storage
+│ │ ├── news_raw/                       # Raw scraped/collected news data
+│ │ ├── news_processed/                 # Cleaned/feature-engineered news data
+│ │ └── stocks/                         # Historical stock data (via yfinance)
+│ ├── db/                               # Database connection + schemas
 │ │ ├── db_connection.py
 │ │ └── schemas.py
-│ ├── models/ # Trained ML models + experiments
-│ ├── notebooks/ # Jupyter notebooks for exploration
-│ ├── services/ # Microservices for modular tasks
-│ │ ├── backtesting_service.py # Portfolio backtesting pipeline
-│ │ ├── conversational_service.py # LLM-powered query interface
-│ │ ├── data_pipeline.py # ETL pipeline (yfinance + APIs)
-│ │ ├── prediction_service.py # ML forecasting endpoints
-│ │ └── sentiment_service.py # FinBERT news sentiment analysis
-│ ├── utils/ # Shared utilities
+│ ├── models/                           # Trained ML models + experiments
+│ ├── notebooks/                        # Jupyter notebooks for exploration
+│ ├── services/                         # Microservices for modular tasks
+│ │ ├── backtesting_service.py          # Portfolio backtesting pipeline
+│ │ ├── conversational_service.py       # LLM-powered query interface
+│ │ ├── data_pipeline.py                # ETL pipeline (yfinance + APIs)
+│ │ ├── prediction_service.py           # ML forecasting endpoints
+│ │ └── sentiment_service.py            # FinBERT news sentiment analysis
+│ ├── utils/                            # Shared utilities
 │ │ ├── config.py
 │ │ └── visualization.py
-│ ├── app.py # FastAPI entry point
-│ └── requirements.txt # Python dependencies
+│ ├── app.py                            # FastAPI entry point
+│ └── requirements.txt                  # Python dependencies
 │
-├── frontend/ # React-based dashboard
+├── frontend/                           # React-based dashboard
 │ └── src/
-│ ├── components/ # Reusable UI components
-│ ├── pages/ # Dashboard pages
-│ └── App.jsx # Main React app entry point
-│ └── package.json # Frontend dependencies
+│ ├── components/                       # Reusable UI components
+│ ├── pages/                            # Dashboard pages
+│ └── App.jsx                           # Main React app entry point
+│ └── package.json                      # Frontend dependencies
 │
 ├── .gitignore
 └── README.md
