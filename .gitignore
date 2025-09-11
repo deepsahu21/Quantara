@@ -1,0 +1,7 @@
+src/data/stocks/
+src/data/*.csv
+src/models/
+*.ipynb_checkpoints
+# Ignore virtual environment
+.venv/
+venv/
