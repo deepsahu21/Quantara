@@ -26,7 +26,7 @@ Quantara is a **FinTech platform** that combines **historical stock data** (via 
 ---
 
 ## 📂 Project Structure (WIP)  
-
+```
 Quantara/
 ├── backend/ # Core backend logic
 │ ├── data/ # Data loaders and raw/processed storage
@@ -60,7 +60,7 @@ Quantara/
 ├── .gitignore
 └── README.md
 
-
+```
 ---
 
 ## 📌 Features (Planned & In-Progress)  
