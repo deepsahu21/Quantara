@@ -1,3 +1,4 @@
+#Creates CSV files for each stock in the TICKERS list and saves them into the data/stocks directory.
 import os
 from datetime import date
 import yfinance as yf
