@@ -21,11 +21,12 @@ TICKERS = [
     "TSLA","TXN","UNH","UNP","UPS","USB","V","VZ","WFC","WMT","XOM"
 ]
 
-
+# Downloads stock data from Yahoo Finance
 def get_stock_data(tickers):
     data = yf.download(tickers, start = start_date, end = end_date, interval = interval, group_by = 'ticker')
     return data
 
+# Save each ticker in to a separate CSV file
 def save_to_csv(data, tickers):
     for ticker in tickers:
         if ticker in data:
