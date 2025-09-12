@@ -1,4 +1,5 @@
 src/data/stocks/
+src/data*
 src/data/*.csv
 src/models/
 *.ipynb_checkpoints
