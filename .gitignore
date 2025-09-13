@@ -1,4 +1,6 @@
-src/data*
+src/data/stocks
+src/data/news_raw
+src/data/news_processed
 src/data/*.csv
 src/models/
 *.ipynb_checkpoints
