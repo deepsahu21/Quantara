@@ -1,8 +1,8 @@
-src/data/stocks
-src/data/news_raw
-src/data/news_processed
-src/data/*.csv
-src/models/
+backend/data/stocks
+backend/data/news_raw
+backend/data/news_processed
+backend/data/*.csv
+backend/models/
 *.ipynb_checkpoints
 # Ignore virtual environment
 .venv/
