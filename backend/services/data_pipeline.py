@@ -3,14 +3,14 @@ import os
 from datetime import date
 import yfinance as yf
 
-DATA_DIR = "src/data/stocks"
+DATA_DIR = "backend/data/"
 start_date = "2020-01-01"
 end_date = date.today().strftime("%Y-%m-%d")
 interval = "1d"
 
 TICKERS = [
     "AAPL","ABBV","ABT","ACN","ADBE","AIG","AMD","AMGN","AMT","AMZN",
-    "AVGO","AXP","BA","BAC","BK","BKNG","BLK","BMY","BRK.B","C",
+    "AVGO","AXP","BA","BAC","BK","BKNG","BLK","BMY","BRK-B","C",
     "CAT","CHTR","CL","CMCSA","COF","COP","COST","CRM","CSCO","CVS",
     "CVX","DE","DHR","DIS","DUK","EMR","FDX","GD","GE","GILD",
     "GM","GOOG","GOOGL","GS","HD","HON","IBM","INTC","INTU","ISRG",
@@ -24,16 +24,8 @@ TICKERS = [
 # Downloads stock data from Yahoo Finance
 def get_stock_data(tickers):
     data = yf.download(tickers, start = start_date, end = end_date, interval = interval, group_by = 'ticker')
+    data[]
     return data
-
-# Save each ticker in to a separate CSV file
-def save_to_csv(data, tickers):
-    for ticker in tickers:
-        if ticker in data:
-            ticker_data = data[ticker].dropna()
-            filepath = os.path.join(DATA_DIR, f"{ticker}.csv")
-            ticker_data.to_csv(filepath)
-            print(f"Saved{ticker} to stocks/")
 
     
 
@@ -41,7 +33,7 @@ def save_to_csv(data, tickers):
 if __name__ == "__main__":
     
     stock_data = get_stock_data(TICKERS)
-    save_to_csv(stock_data, TICKERS)
+    stock_data.to_csv(os.path.join(DATA_DIR, "all_stocks.csv"))
     
 
 
