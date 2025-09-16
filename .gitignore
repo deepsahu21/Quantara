@@ -1,18 +1,22 @@
-# Data folders
-backend/data/stocks/
-backend/data/news_raw/
+# Data folders (ignore raw & processed data)
+backend/data/raw_data/
 backend/data/news_processed/
+backend/data/processed_data/
 backend/data/*.csv
 
-# Models (ignore saved weights but keep code)
+# Model artifacts (ignore saved weights but keep code)
 backend/models/*.pkl
 backend/models/*.h5
 backend/models/*.pt
-
-# Jupyter checkpoints
-.ipynb_checkpoints/
 
 # Virtual environments
 .venv/
 venv/
 env/
+
+# Jupyter checkpoints
+.ipynb_checkpoints/
+
+# System / Editor files
+.DS_Store
+Thumbs.db
