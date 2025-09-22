@@ -1,13 +1,13 @@
-# data
+# data folders
 backend/data/raw_data/
 backend/data/processed_data/
 backend/data/*.csv
 
-# virtual env
+# virtual env folders
 .venv/
 venv/
 env/
 
-# system/editor
+# system/editor folders
 .DS_Store
 Thumbs.db
