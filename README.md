@@ -82,7 +82,7 @@ Quantara/
 ---
 
 ## 🚧 Roadmap  
-- [ ] Complete sentiment pipeline (FinBERT integration + preprocessing).  
+- [X] Complete sentiment pipeline (FinBERT integration + preprocessing).  
 - [ ] Build XGBoost forecasting + backtesting services.  
 - [ ] Deploy backend with FastAPI + Docker + AWS Lambda.  
 - [ ] Expand React dashboard (charts, tables, conversational UI).  
