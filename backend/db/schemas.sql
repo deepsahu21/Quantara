@@ -13,7 +13,7 @@ CREATE TABLE IF NOT EXISTS stocks (
 	high_price NUMERIC(10,2),
 	low_price NUMERIC(10,2),
 	close_price NUMERIC(10,2),
-	volume NUMERIC,
+	volume BIGINT,
 	PRIMARY KEY(date, ticker)
 );
 
@@ -46,7 +46,7 @@ CREATE TABLE IF NOT EXISTS merged_data (
 	high_price NUMERIC(10,2),
 	low_price NUMERIC(10,2),
 	close_price NUMERIC(10,2),
-	volume NUMERIC,
+	volume BIGINT,
 	sentiment_score NUMERIC(12,10),
     polarity NUMERIC(6,5),
     headline_count INT,
@@ -70,4 +70,6 @@ INSERT INTO merged_data (ticker, date, open_price, high_price, low_price,  close
     JOIN daily_sentiment d
         ON s.date = d.date AND s.ticker = d.ticker;
 
-\COPY merged_data TO 'C:/Users/deeps/Desktop/projects/Quantara/backend/data/processed_data/merged_data.csv' DELIMITER ',' CSV HEADER;
+COPY merged_data TO 'C:/Users/deeps/Desktop/projects/Quantara/backend/data/processed_data/merged_data.csv'
+DELIMITER ','
+CSV HEADER;
