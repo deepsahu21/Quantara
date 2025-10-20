@@ -2,7 +2,6 @@ from sklearn.model_selection import train_test_split
 from xgboost import XGBRegressor
 from sklearn.ensemble import RandomForestRegressor
 import pandas as pd
-from model_preprocesser import preprocess_data
 from sklearn.metrics import mean_absolute_error, root_mean_squared_error, r2_score
 
 
@@ -16,16 +15,14 @@ all_data = pd.read_csv(ALL_DATA_PATH)
 
 
 #Set variables
-X = all_data.drop(columns = ["close_price"])
-y = all_data["close_price"]
+X = all_data.drop(columns = ["target_pct_change", "close_price"])
+y = all_data["target_pct_change"]
 
 print("x y assigned")
 
 
 
-split = int(len(X) * 0.8)  # first 80% = train, last 20% = test
-X_train, X_test = X.iloc[:split], X.iloc[split:]
-y_train, y_test = y.iloc[:split], y.iloc[split:]
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, shuffle=False)
 
 
 xg = XGBRegressor(
