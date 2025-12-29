@@ -3,7 +3,7 @@ import './StockSelector.css';
 
 const StockSelector = ({
   ticker,
-  validTickers = [],
+  validTickers,
   onTickerChange,
   timeframe,
   onTimeframeChange,
@@ -13,23 +13,26 @@ const StockSelector = ({
   const timeframes = ['1D', '1W', '1M', '3M', '6M', '1Y'];
 
   const containerRef = useRef(null);
+  const inputRef = useRef(null);
+
   const [query, setQuery] = useState(ticker);
   const [open, setOpen] = useState(false);
   const [activeIndex, setActiveIndex] = useState(0);
 
-  // Keep input synced with selected ticker
+  /** Keep input synced with selected ticker */
   useEffect(() => {
     setQuery(ticker);
   }, [ticker]);
 
+  /** Filter dropdown options */
   const filteredTickers = useMemo(() => {
     if (!query) return validTickers;
     return validTickers.filter(t =>
-      t.toLowerCase().startsWith(query.toLowerCase())
+      t.toLowerCase().includes(query.toLowerCase())
     );
   }, [query, validTickers]);
 
-  // Close dropdown on outside click
+  /** Close on outside click */
   useEffect(() => {
     const handleClickOutside = (e) => {
       if (containerRef.current && !containerRef.current.contains(e.target)) {
@@ -41,14 +44,15 @@ const StockSelector = ({
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, [ticker]);
 
-  const selectTicker = (t) => {
+  const commitSelection = (t) => {
     setQuery(t);
     setOpen(false);
+    setActiveIndex(0);
     onTickerChange(t);
   };
 
   const handleKeyDown = (e) => {
-    if (!open && (e.key === 'Enter' || e.key === 'ArrowDown')) {
+    if (!open && (e.key === 'ArrowDown' || e.key === 'Enter')) {
       setOpen(true);
       return;
     }
@@ -72,27 +76,28 @@ const StockSelector = ({
     if (e.key === 'Enter') {
       e.preventDefault();
       if (filteredTickers[activeIndex]) {
-        selectTicker(filteredTickers[activeIndex]);
+        commitSelection(filteredTickers[activeIndex]);
       }
     }
   };
 
   return (
     <div className="stock-selector" ref={containerRef}>
-      {/* LEFT GROUP (ticker + timeframes) */}
       <div className="selector-left">
-        {/* Searchable ticker */}
+        {/* TICKER DROPDOWN */}
         <div className="ticker-combobox">
           <input
+            ref={inputRef}
             className="ticker-input"
             value={query}
             onChange={(e) => {
               setQuery(e.target.value.toUpperCase());
               setOpen(true);
+              setActiveIndex(0);
             }}
             onFocus={() => setOpen(true)}
             onKeyDown={handleKeyDown}
-            placeholder="Ticker"
+            placeholder="Select ticker"
             spellCheck={false}
           />
 
@@ -110,7 +115,7 @@ const StockSelector = ({
                     onMouseEnter={() => setActiveIndex(idx)}
                     onMouseDown={(e) => {
                       e.preventDefault(); // prevent blur
-                      selectTicker(t);
+                      commitSelection(t);
                     }}
                   >
                     {t}
@@ -121,7 +126,7 @@ const StockSelector = ({
           )}
         </div>
 
-        {/* Timeframe buttons (RESTORED DESIGN) */}
+        {/* TIMEFRAME BUTTONS */}
         <div className="timeframe-buttons">
           {timeframes.map(tf => (
             <button
@@ -135,7 +140,7 @@ const StockSelector = ({
         </div>
       </div>
 
-      {/* Volume toggle */}
+      {/* VOLUME TOGGLE */}
       <label className="volume-toggle">
         <input
           type="checkbox"
