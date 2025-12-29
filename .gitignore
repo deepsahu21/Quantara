@@ -1,13 +1,77 @@
-# data folders
-backend/data/raw_data/
-backend/data/processed_data/
-backend/data/*.csv
+# ======================================================
+# Python
+# ======================================================
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.egg-info/
+.eggs/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
 
-# virtual env folders
+# Virtual environments
 .venv/
 venv/
 env/
+ENV/
 
-# system/editor folders
+# Environment variables / secrets
+.env
+.env.*
+*.key
+*.pem
+
+# ======================================================
+# Backend ML / Data Artifacts (CatBoost, pipelines, logs)
+# ======================================================
+backend/artifacts/
+backend/data/
+backend/db/
+backend/sentiments/
+backend/models/__pycache__/
+backend/services/__pycache__/
+backend/utils/__pycache__/
+
+# CatBoost training output
+catboost_info/
+learn/
+tmp/
+*.tsv
+catboost_training.json
+
+# ======================================================
+# Frontend (Node / Vite / React)
+# ======================================================
+frontend/node_modules/
+node_modules/
+
+dist/
+build/
+.cache/
+
+# Vite
+.vite/
+
+# ======================================================
+# Logs & runtime files
+# ======================================================
+*.log
+logs/
+*.sqlite
+*.db
+
+# ======================================================
+# OS / Editor
+# ======================================================
 .DS_Store
 Thumbs.db
+
+.vscode/
+.idea/
+
+# ======================================================
+# Optional: Ignore experimental or unused folders
+# ======================================================
+not_needed/

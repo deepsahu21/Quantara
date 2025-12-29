@@ -24,7 +24,6 @@ TICKERS = [
 # Downloads stock data from Yahoo Finance
 def get_stock_data(tickers):
     data = yf.download(tickers, start = start_date, end = end_date, interval = interval, group_by = 'ticker')
-    data[]
     return data
 
     

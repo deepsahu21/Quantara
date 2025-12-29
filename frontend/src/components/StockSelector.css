@@ -1,0 +1,124 @@
+.stock-selector {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 1rem;
+  background-color: var(--bg-secondary);
+  border-bottom: 1px solid var(--border-color);
+}
+
+/* Left group restores original layout */
+.selector-left {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+/* --- Searchable ticker (matches old select visually) --- */
+
+.ticker-combobox {
+  position: relative;
+}
+
+.ticker-input {
+  padding: 0.5rem 1rem;
+  width: 90px;
+  height: 36px;
+  background-color: var(--bg-tertiary);
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+  color: var(--text-primary);
+  font-size: 1rem;
+  font-weight: 600;
+  outline: none;
+  cursor: text;
+}
+
+.ticker-input:hover {
+  border-color: var(--accent-blue);
+}
+
+.ticker-input:focus {
+  border-color: var(--accent-teal);
+}
+
+.ticker-dropdown {
+  position: absolute;
+  top: 2.6rem;
+  left: 0;
+  width: 140px;
+  max-height: 220px;
+  overflow-y: auto;
+  background-color: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  z-index: 50;
+}
+
+.ticker-option {
+  padding: 0.5rem 0.75rem;
+  cursor: pointer;
+  color: var(--text-primary);
+}
+
+.ticker-option:hover,
+.ticker-option.active {
+  background-color: var(--border-color);
+}
+
+.ticker-option.selected {
+  outline: 1px solid var(--accent-blue);
+}
+
+.ticker-empty {
+  padding: 0.5rem 0.75rem;
+  color: var(--text-secondary);
+}
+
+/* --- Timeframe buttons (UNCHANGED DESIGN) --- */
+
+.timeframe-buttons {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.timeframe-btn {
+  padding: 0.5rem 1rem;
+  background-color: var(--bg-tertiary);
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+  color: var(--text-secondary);
+  font-size: 0.875rem;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.timeframe-btn:hover {
+  background-color: var(--border-color);
+  color: var(--text-primary);
+}
+
+.timeframe-btn.active {
+  background-color: var(--accent-blue);
+  border-color: var(--accent-blue);
+  color: var(--text-primary);
+}
+
+/* --- Volume toggle (UNCHANGED) --- */
+
+.volume-toggle {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  cursor: pointer;
+  color: var(--text-secondary);
+  font-size: 0.875rem;
+}
+
+.volume-toggle input[type="checkbox"] {
+  width: 18px;
+  height: 18px;
+  cursor: pointer;
+  accent-color: var(--accent-blue);
+}
