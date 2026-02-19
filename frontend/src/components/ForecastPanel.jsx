@@ -1,17 +1,47 @@
 import React from 'react';
 import './ForecastPanel.css';
 
-const ForecastPanel = ({ directionScore, direction, confidenceBand, confidenceClass }) => {
+const ForecastPanel = ({
+  direction,
+  expectedMovePct,
+  confidenceClass,
+  confidenceBand
+}) => {
+  // Guard: no data yet
+  if (
+    !direction ||
+    typeof expectedMovePct !== 'number' ||
+    typeof confidenceBand !== 'number'
+  ) {
+    return (
+      <div className="forecast-panel">
+        <div className="panel-header">
+          <span className="panel-title">Forecast</span>
+          <span className="panel-tag">AI Model</span>
+        </div>
+        <div className="forecast-content muted">—</div>
+      </div>
+    );
+  }
+
   const isBullish = direction === 'bullish';
+
   const arrowRotation = isBullish ? 0 : 180;
-  
-  // Map confidence class to visual indicator
-  const confidenceColor = {
-    'Strong': 'var(--accent-green)',
-    'Moderate': 'var(--accent-teal)',
-    'Low': 'var(--accent-yellow)',
-    'Do Not Trade': 'var(--text-muted)'
-  }[confidenceClass] || 'var(--text-secondary)';
+  const arrowColor = isBullish
+    ? 'var(--accent-green)'
+    : 'var(--accent-red)';
+
+  const confidenceColorMap = {
+    Strong: 'var(--accent-green)',
+    Moderate: 'var(--accent-teal)',
+    Low: 'var(--accent-yellow)',
+    'Very Low': 'var(--text-muted)'
+  };
+
+  const confidenceColor =
+    confidenceColorMap[confidenceClass] || 'var(--text-muted)';
+
+  const confidenceWidth = Math.round(confidenceBand * 100);
 
   return (
     <div className="forecast-panel">
@@ -19,45 +49,44 @@ const ForecastPanel = ({ directionScore, direction, confidenceBand, confidenceCl
         <span className="panel-title">Forecast</span>
         <span className="panel-tag">AI Model</span>
       </div>
-      
+
       <div className="forecast-content">
-        <div className="forecast-label">Next day direction:</div>
-        
+        <div className="forecast-label">Next day expected move</div>
+
         <div className="direction-indicator">
-          <div 
+          <div
             className="direction-arrow"
-            style={{ 
+            style={{
               transform: `rotate(${arrowRotation}deg)`,
-              color: isBullish ? 'var(--accent-teal)' : 'var(--accent-red)'
+              color: arrowColor
             }}
           >
-            <svg width="48" height="48" viewBox="0 0 24 24" fill="none">
-              <path
-                d="M12 4L12 20M12 20L6 14M12 20L18 14"
-                stroke="currentColor"
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              />
-            </svg>
+            ↑
           </div>
-          <div className="direction-value">{Math.abs(directionScore).toFixed(2)}</div>
+
+          <div className="direction-value">
+            {Math.abs(expectedMovePct).toFixed(2)}%
+          </div>
         </div>
-        
+
         <div className="confidence-section">
           <div className="confidence-label">Confidence band</div>
+
           <div className="confidence-bar-container">
-            <div 
+            <div
               className="confidence-bar-fill"
-              style={{ 
-                width: `${confidenceBand * 100}%`,
+              style={{
+                width: `${confidenceWidth}%`,
                 backgroundColor: confidenceColor
               }}
             />
           </div>
-          <div className="confidence-class">{confidenceClass}</div>
+
+          <div className="confidence-class">
+            {confidenceClass}
+          </div>
         </div>
-        
+
         <div className="forecast-note">
           Historical simulation performance. Not financial advice.
         </div>

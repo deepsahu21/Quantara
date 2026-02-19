@@ -20,19 +20,18 @@ ENV/
 # Environment variables / secrets
 .env
 .env.*
+!.env.example
 *.key
 *.pem
 
 # ======================================================
-# Backend ML / Data Artifacts (CatBoost, pipelines, logs)
+# Backend — ML artifacts, data, & runtime caches
 # ======================================================
 backend/artifacts/
 backend/data/
 backend/db/
 backend/sentiments/
-backend/models/__pycache__/
-backend/services/__pycache__/
-backend/utils/__pycache__/
+backend/backtests/
 
 # CatBoost training output
 catboost_info/
@@ -67,11 +66,15 @@ logs/
 # ======================================================
 .DS_Store
 Thumbs.db
+desktop.ini
 
 .vscode/
 .idea/
+*.swp
+*.swo
+*~
 
 # ======================================================
-# Optional: Ignore experimental or unused folders
+# Misc — unused / scratch folders
 # ======================================================
 not_needed/

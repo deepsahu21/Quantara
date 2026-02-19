@@ -90,3 +90,4 @@ The Finnhub service implements in-memory caching with a 5-minute TTL to:
 - All external API calls are made server-side only
 - Environment variables are loaded securely using python-dotenv
 
+

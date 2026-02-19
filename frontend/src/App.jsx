@@ -6,7 +6,7 @@ import StockSelector from './components/StockSelector';
 import CandlestickChart from './components/CandlestickChart';
 import ForecastPanel from './components/ForecastPanel';
 import SentimentChart from './components/SentimentChart';
-import BacktestPanel, { BacktestChart } from './components/BacktestPanel';
+import BacktestPanel from './components/BacktestPanel';
 import HeadlinesPanel from './components/HeadlinesPanel';
 
 import './App.css';
@@ -27,72 +27,81 @@ function App() {
   const [timeframe, setTimeframe] = useState('6M');
   const [showVolume, setShowVolume] = useState(true);
 
+  const [validTickers, setValidTickers] = useState([]);
   const [predictionData, setPredictionData] = useState(null);
   const [backtestData, setBacktestData] = useState(null);
 
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  const fetchPredictionData = async (t) => {
+  /* ---------------- Ticker universe ---------------- */
+  useEffect(() => {
+    axios
+      .get(`${API_BASE_URL}/tickers`)
+      .then(res => setValidTickers(res.data.tickers))
+      .catch(() => {});
+  }, []);
+
+  /* ---------------- Prediction ---------------- */
+  const fetchPrediction = async (t) => {
     try {
-      setLoading(true);
       setError(null);
+      setLoading(true);
       const { data } = await axios.get(`${API_BASE_URL}/prediction/${t}`);
       setPredictionData(data);
-    } catch (err) {
-      console.error(err);
+    } catch {
       setError('Failed to load prediction data.');
-      setPredictionData(null);
     } finally {
       setLoading(false);
     }
   };
 
-  const fetchBacktestData = async (t) => {
+  /* ---------------- Backtest ---------------- */
+  const fetchBacktest = async (t) => {
     try {
       const { data } = await axios.get(`${API_BASE_URL}/backtest/${t}`);
       setBacktestData(data);
-    } catch (err) {
-      console.error(err);
+    } catch {
       setBacktestData(null);
     }
   };
 
   useEffect(() => {
-    fetchPredictionData(ticker);
-    fetchBacktestData(ticker);
+    fetchPrediction(ticker);
+    fetchBacktest(ticker);
   }, [ticker]);
 
+  /* ---------------- Timeframe slicing ---------------- */
   const slicedOHLCV = useMemo(() => {
     if (!predictionData?.ohlcv) return [];
     const days = TIMEFRAME_TO_DAYS[timeframe];
-    return days ? predictionData.ohlcv.slice(-days) : predictionData.ohlcv;
+    return predictionData.ohlcv.slice(-days);
   }, [predictionData, timeframe]);
 
-  if (loading && !predictionData) {
-    return (
-      <div className="app">
-        <div className="loading-screen">
-          <div className="loading-spinner" />
-          <div className="loading-text">Loading Quantara...</div>
-        </div>
-      </div>
-    );
-  }
-
-  const muPct = predictionData?.mu_pct;
+  /* ---------------- Expected move ---------------- */
   const expectedMovePct =
-    typeof muPct === 'number' ? (muPct * 100).toFixed(2) : null;
+    typeof predictionData?.mu_pct === 'number'
+      ? predictionData.mu_pct * 100
+      : typeof predictionData?.direction_score === 'number'
+        ? predictionData.direction_score * 100
+        : null;
+
+  if (loading && !predictionData) {
+    return <div className="loading-screen">Loading Quantara…</div>;
+  }
 
   return (
     <div className="app">
-      <Header onRefresh={() => fetchPredictionData(ticker)} />
+      <Header onRefresh={() => fetchPrediction(ticker)} />
 
       <div className="dashboard-container">
+        {/* ================= TOP ROW ================= */}
         <div className="dashboard-top">
+          {/* LEFT */}
           <div className="dashboard-left-top">
             <StockSelector
               ticker={ticker}
+              validTickers={validTickers}
               onTickerChange={setTicker}
               timeframe={timeframe}
               onTimeframeChange={setTimeframe}
@@ -108,14 +117,12 @@ function App() {
             </div>
           </div>
 
+          {/* RIGHT */}
           <div className="dashboard-right-top">
-            {/* KEEP LEGACY PROP NAMES → prevents NaN */}
             <ForecastPanel
               direction={predictionData?.direction}
-              directionScore={predictionData?.direction_score}
               confidenceClass={predictionData?.confidence_class}
-              probability={predictionData?.direction_probability}
-              volatility={predictionData?.volatility}
+              confidenceBand={predictionData?.direction_probability}
               expectedMovePct={expectedMovePct}
             />
 
@@ -126,23 +133,24 @@ function App() {
           </div>
         </div>
 
-        <div className="dashboard-bottom">
-          <div className="dashboard-left-bottom">
-            {backtestData?.backtest_metrics && (
-              <BacktestPanel metrics={backtestData.backtest_metrics} />
-            )}
+        {/* ================= BOTTOM ROW ================= */}
+        {/* Backtest should be the one that stretches; Headlines stays narrower */}
+        <div
+          className="dashboard-bottom"
+          style={{
+            display: 'grid',
+            gridTemplateColumns: '2fr 1fr',
+            gap: '16px'
+          }}
+        >
+          {/* BACKTEST (combined metrics + chart inside BacktestPanel) */}
+          <div className="dashboard-left-bottom" style={{ minWidth: 0 }}>
+            <BacktestPanel backtest={backtestData} />
           </div>
 
-          <div className="dashboard-center-bottom">
-            <BacktestChart
-              data={backtestData?.equity_curve || []}
-            />
-          </div>
-
-          <div className="dashboard-right-bottom">
-            <HeadlinesPanel
-              headlines={predictionData?.headlines || []}
-            />
+          {/* HEADLINES */}
+          <div className="dashboard-right-bottom" style={{ minWidth: 0 }}>
+            <HeadlinesPanel headlines={predictionData?.headlines || []} />
           </div>
         </div>
       </div>

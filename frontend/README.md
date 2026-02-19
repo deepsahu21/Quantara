@@ -68,3 +68,4 @@ The frontend expects API responses matching this structure:
 - Recharts (charting)
 - Axios (API calls)
 
+

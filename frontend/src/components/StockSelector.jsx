@@ -2,8 +2,8 @@ import React, { useEffect, useMemo, useRef, useState } from 'react';
 import './StockSelector.css';
 
 const StockSelector = ({
-  ticker,
-  validTickers,
+  ticker = '',
+  validTickers = [],
   onTickerChange,
   timeframe,
   onTimeframeChange,
@@ -13,31 +13,57 @@ const StockSelector = ({
   const timeframes = ['1D', '1W', '1M', '3M', '6M', '1Y'];
 
   const containerRef = useRef(null);
-  const inputRef = useRef(null);
+  const dropdownRef = useRef(null);
 
-  const [query, setQuery] = useState(ticker);
+  const [query, setQuery] = useState('');
   const [open, setOpen] = useState(false);
   const [activeIndex, setActiveIndex] = useState(0);
 
-  /** Keep input synced with selected ticker */
+  /* Sync input only after commit */
   useEffect(() => {
-    setQuery(ticker);
-  }, [ticker]);
+    if (!open) setQuery(ticker || '');
+  }, [ticker, open]);
 
-  /** Filter dropdown options */
+  /* -------------------------------------------------- */
+  /* PROPER AUTOCOMPLETE (PREFIX + CONTAINS FALLBACK)   */
+  /* -------------------------------------------------- */
   const filteredTickers = useMemo(() => {
-    if (!query) return validTickers;
-    return validTickers.filter(t =>
-      t.toLowerCase().includes(query.toLowerCase())
-    );
+    if (!Array.isArray(validTickers)) return [];
+
+    const q = query.trim().toUpperCase();
+
+    // Empty → ALL tickers
+    if (!q) return validTickers;
+
+    const startsWith = [];
+    const contains = [];
+
+    for (const t of validTickers) {
+      const upper = t.toUpperCase();
+      if (upper.startsWith(q)) {
+        startsWith.push(t);
+      } else if (upper.includes(q)) {
+        contains.push(t);
+      }
+    }
+
+    return [...startsWith, ...contains];
   }, [query, validTickers]);
 
-  /** Close on outside click */
+  /* Reset scroll only when query changes or open */
+  useEffect(() => {
+    if (open && dropdownRef.current) {
+      dropdownRef.current.scrollTop = 0;
+    }
+  }, [open, query]);
+
+  /* Close on outside click */
   useEffect(() => {
     const handleClickOutside = (e) => {
       if (containerRef.current && !containerRef.current.contains(e.target)) {
         setOpen(false);
-        setQuery(ticker); // revert invalid typing
+        setActiveIndex(0);
+        setQuery(ticker || '');
       }
     };
     document.addEventListener('mousedown', handleClickOutside);
@@ -48,18 +74,19 @@ const StockSelector = ({
     setQuery(t);
     setOpen(false);
     setActiveIndex(0);
-    onTickerChange(t);
+    onTickerChange?.(t);
   };
 
   const handleKeyDown = (e) => {
     if (!open && (e.key === 'ArrowDown' || e.key === 'Enter')) {
       setOpen(true);
+      setActiveIndex(0);
       return;
     }
 
     if (e.key === 'Escape') {
       setOpen(false);
-      setQuery(ticker);
+      setQuery(ticker || '');
       return;
     }
 
@@ -75,19 +102,16 @@ const StockSelector = ({
 
     if (e.key === 'Enter') {
       e.preventDefault();
-      if (filteredTickers[activeIndex]) {
-        commitSelection(filteredTickers[activeIndex]);
-      }
+      const t = filteredTickers[activeIndex];
+      if (t) commitSelection(t);
     }
   };
 
   return (
     <div className="stock-selector" ref={containerRef}>
       <div className="selector-left">
-        {/* TICKER DROPDOWN */}
         <div className="ticker-combobox">
           <input
-            ref={inputRef}
             className="ticker-input"
             value={query}
             onChange={(e) => {
@@ -95,44 +119,49 @@ const StockSelector = ({
               setOpen(true);
               setActiveIndex(0);
             }}
-            onFocus={() => setOpen(true)}
+            onFocus={() => {
+              setOpen(true);
+              setActiveIndex(0);
+            }}
             onKeyDown={handleKeyDown}
             placeholder="Select ticker"
             spellCheck={false}
           />
 
           {open && (
-            <div className="ticker-dropdown">
-              {filteredTickers.length === 0 ? (
-                <div className="ticker-empty">No matches</div>
-              ) : (
-                filteredTickers.map((t, idx) => (
-                  <div
-                    key={t}
-                    className={`ticker-option ${
-                      idx === activeIndex ? 'active' : ''
-                    } ${t === ticker ? 'selected' : ''}`}
-                    onMouseEnter={() => setActiveIndex(idx)}
-                    onMouseDown={(e) => {
-                      e.preventDefault(); // prevent blur
-                      commitSelection(t);
-                    }}
-                  >
-                    {t}
-                  </div>
-                ))
-              )}
+            <div
+              ref={dropdownRef}
+              className="ticker-dropdown"
+              style={{
+                maxHeight: '240px',
+                overflowY: 'auto'
+              }}
+            >
+              {filteredTickers.map((t, idx) => (
+                <div
+                  key={t}
+                  className={`ticker-option ${
+                    idx === activeIndex ? 'active' : ''
+                  } ${t === ticker ? 'selected' : ''}`}
+                  onMouseEnter={() => setActiveIndex(idx)}
+                  onMouseDown={(e) => {
+                    e.preventDefault();
+                    commitSelection(t);
+                  }}
+                >
+                  {t}
+                </div>
+              ))}
             </div>
           )}
         </div>
 
-        {/* TIMEFRAME BUTTONS */}
         <div className="timeframe-buttons">
           {timeframes.map(tf => (
             <button
               key={tf}
               className={`timeframe-btn ${timeframe === tf ? 'active' : ''}`}
-              onClick={() => onTimeframeChange(tf)}
+              onClick={() => onTimeframeChange?.(tf)}
             >
               {tf}
             </button>
@@ -140,12 +169,11 @@ const StockSelector = ({
         </div>
       </div>
 
-      {/* VOLUME TOGGLE */}
       <label className="volume-toggle">
         <input
           type="checkbox"
-          checked={showVolume}
-          onChange={(e) => onVolumeToggle(e.target.checked)}
+          checked={!!showVolume}
+          onChange={(e) => onVolumeToggle?.(e.target.checked)}
         />
         <span>Vol</span>
       </label>
@@ -154,3 +182,4 @@ const StockSelector = ({
 };
 
 export default StockSelector;
+
