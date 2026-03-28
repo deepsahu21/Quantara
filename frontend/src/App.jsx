@@ -11,6 +11,12 @@ import HeadlinesPanel from './components/HeadlinesPanel';
 
 import './App.css';
 
+import {
+  MOCK_PREDICTION,
+  MOCK_BACKTEST,
+  MOCK_AS_OF_DATE
+} from './data/mockAaplNov12';
+
 const API_BASE_URL = '/api';
 
 const TIMEFRAME_TO_DAYS = {
@@ -27,11 +33,12 @@ function App() {
   const [timeframe, setTimeframe] = useState('6M');
   const [showVolume, setShowVolume] = useState(true);
 
+  const [usingMock, setUsingMock] = useState(true);
   const [validTickers, setValidTickers] = useState([]);
-  const [predictionData, setPredictionData] = useState(null);
-  const [backtestData, setBacktestData] = useState(null);
+  const [predictionData, setPredictionData] = useState(MOCK_PREDICTION);
+  const [backtestData, setBacktestData] = useState(MOCK_BACKTEST);
 
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
   /* ---------------- Ticker universe ---------------- */
@@ -67,9 +74,26 @@ function App() {
   };
 
   useEffect(() => {
+    if (usingMock) return;
     fetchPrediction(ticker);
     fetchBacktest(ticker);
-  }, [ticker]);
+  }, [ticker, usingMock]);
+
+  const handleTickerChange = (next) => {
+    if (usingMock) setUsingMock(false);
+    setTicker(next);
+  };
+
+  const handleRefresh = () => {
+    if (usingMock) {
+      setPredictionData(MOCK_PREDICTION);
+      setBacktestData(MOCK_BACKTEST);
+      setError(null);
+      return;
+    }
+    fetchPrediction(ticker);
+    fetchBacktest(ticker);
+  };
 
   /* ---------------- Timeframe slicing ---------------- */
   const slicedOHLCV = useMemo(() => {
@@ -90,9 +114,13 @@ function App() {
     return <div className="loading-screen">Loading Quantara…</div>;
   }
 
+  const demoCaption = usingMock
+    ? `Demo · AAPL snapshot ${MOCK_AS_OF_DATE}`
+    : null;
+
   return (
     <div className="app">
-      <Header onRefresh={() => fetchPrediction(ticker)} />
+      <Header onRefresh={handleRefresh} demoCaption={demoCaption} />
 
       <div className="dashboard-container">
         {/* ================= TOP ROW ================= */}
@@ -102,7 +130,7 @@ function App() {
             <StockSelector
               ticker={ticker}
               validTickers={validTickers}
-              onTickerChange={setTicker}
+              onTickerChange={handleTickerChange}
               timeframe={timeframe}
               onTimeframeChange={setTimeframe}
               showVolume={showVolume}

@@ -1,7 +1,7 @@
 import React from 'react';
 import './Header.css';
 
-const Header = ({ onRefresh }) => {
+const Header = ({ onRefresh, demoCaption }) => {
   return (
     <header className="dashboard-header">
       <div className="header-left">
@@ -23,6 +23,11 @@ const Header = ({ onRefresh }) => {
           <span className="logo-text">Quantara</span>
         </div>
         <span className="header-subtitle">AI-Driven Trading Analytics</span>
+        {demoCaption ? (
+          <span className="header-demo-caption" title={demoCaption}>
+            {demoCaption}
+          </span>
+        ) : null}
       </div>
       <button className="refresh-button" onClick={onRefresh} title="Refresh data">
         <svg width="20" height="20" viewBox="0 0 20 20" fill="none">

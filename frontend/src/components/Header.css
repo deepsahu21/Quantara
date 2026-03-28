@@ -31,6 +31,18 @@
   font-weight: 400;
 }
 
+.header-demo-caption {
+  font-size: 0.72rem;
+  color: var(--accent-yellow);
+  padding: 0.2rem 0.55rem;
+  border: 1px solid var(--border-color);
+  border-radius: 4px;
+  max-width: 280px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
 .refresh-button {
   display: flex;
   align-items: center;
