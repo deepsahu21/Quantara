@@ -1,93 +1,239 @@
-# Quantara Backend API
+<div align="center">
 
-FastAPI backend for Quantara AI-Driven Trading Analytics Dashboard.
+# Quantara
 
-## Setup
+**AI-Driven Trading Analytics Platform**
 
-1. **Install dependencies:**
-```bash
-pip install -r requirements.txt
+</div>
+
+Quantara is a full-stack trading analytics dashboard that pulls together real-time market data, financial news sentiment, and machine-learning forecasts into one place. Pick a ticker, and the platform shows you a candlestick chart, a next-day directional prediction with a confidence score, a rolling sentiment trend built from recent headlines, and a full backtest of how the strategy would have performed historically — all in a single view.
+
+The backend is a FastAPI server that handles data fetching (Finnhub, yfinance), ML inference, and backtesting logic. The frontend is a React dashboard built with Vite that visualizes everything in real time. The whole thing is containerized with Docker and orchestrated with Kubernetes, so it can run locally or be deployed to any cloud provider.
+
+![Quantara Dashboard](examples/dashboard_full.png)
+
+---
+
+## Features
+
+- **Interactive Candlestick Chart** — Full OHLCV price chart with volume overlay and timeframe controls ranging from 1 day to 1 year
+- **Forecast Panel** — Next-day directional prediction (bullish or bearish) with confidence band and expected move percentage
+- **Sentiment Analysis** — 30-day rolling sentiment score computed from financial news headlines, visualized as a time-series chart
+- **Backtesting Engine** — Historical strategy evaluation showing cumulative PnL, Sharpe ratio, max drawdown, CAGR, and a full equity curve
+- **Live Headlines Feed** — Latest scored news articles for the selected ticker, pulled from Finnhub
+- **Ticker Search** — Search and switch between all tracked equities instantly
+
+---
+
+## Screenshots
+
+<table>
+  <tr>
+    <td width="50%">
+      <img src="examples/chart_forecast.png" alt="Chart & Forecast" />
+      <p align="center"><em>Candlestick chart with forecast panel and sentiment trend</em></p>
+    </td>
+    <td width="50%">
+      <img src="examples/backtest_headlines.png" alt="Backtest & Headlines" />
+      <p align="center"><em>Backtest metrics with equity curve and scored headlines</em></p>
+    </td>
+  </tr>
+</table>
+
+---
+
+## Tech Stack
+
+**Frontend:** React, Vite, Recharts, Axios, Nginx
+
+**Backend:** Python, FastAPI, Uvicorn
+
+**ML & Data:** XGBoost, CatBoost, scikit-learn, yfinance, Finnhub API
+
+**DevOps:** Docker, Docker Compose, Kubernetes, Nginx
+
+---
+
+## Project Structure
+
+```
+Quantara/
+├── backend/                         # FastAPI server
+│   ├── app.py                       # API routes & request handling
+│   ├── models/                      # ML model training & inference
+│   │   ├── model.py                 # Primary forecasting model
+│   │   ├── baseline_models.py       # Baseline comparisons
+│   │   ├── evaluate.py              # Model evaluation
+│   │   ├── feature_engineering.py   # Feature transforms
+│   │   └── model_preprocesser.py    # Data preprocessing
+│   ├── services/                    # Backend services
+│   │   ├── prediction_service.py    # ML prediction orchestration
+│   │   ├── yfinance_service.py      # OHLCV market data
+│   │   ├── finnhub_service.py       # News & market data via Finnhub
+│   │   └── backtesting_service.py   # Strategy backtesting
+│   ├── utils/                       # Shared utilities
+│   ├── Dockerfile
+│   └── requirements.txt
+│
+├── frontend/                        # React dashboard
+│   ├── src/
+│   │   ├── App.jsx                  # Root layout & state
+│   │   └── components/
+│   │       ├── CandlestickChart.jsx
+│   │       ├── ForecastPanel.jsx
+│   │       ├── SentimentChart.jsx
+│   │       ├── BacktestPanel.jsx
+│   │       ├── HeadlinesPanel.jsx
+│   │       ├── StockSelector.jsx
+│   │       └── Header.jsx
+│   ├── nginx.conf                   # Nginx reverse proxy config
+│   ├── Dockerfile
+│   └── package.json
+│
+├── k8s/                             # Kubernetes manifests
+│   ├── namespace.yaml
+│   ├── backend.yaml
+│   ├── frontend.yaml
+│   ├── secrets.yaml
+│   └── ingress.yaml
+│
+├── docker-compose.yml
+├── examples/                        # Screenshots & demo media
+└── README.md
 ```
 
-2. **Configure environment variables:**
-   
-   Create a `.env` file in the `backend/` directory:
-   ```bash
-   cp .env.example .env
-   ```
-   
-   Edit `.env` and add your Finnhub API key:
-   ```
-   FINNHUB_API_KEY=your_api_key_here
-   ```
-   
-   Get your free API key from: https://finnhub.io/register
+---
 
-3. **Run the server:**
+## Getting Started
+
+### Prerequisites
+
+- Python 3.10+
+- Node.js 18+
+- A free [Finnhub API key](https://finnhub.io/register)
+
+### Running locally (without Docker)
+
+**Backend:**
+
 ```bash
-python app.py
+python -m venv .venv
+.venv\Scripts\activate              # Windows
+# source .venv/bin/activate         # macOS / Linux
+
+pip install -r backend/requirements.txt
 ```
 
-The API will be available at `http://localhost:8000`
+Create a `backend/.env` file:
 
-## API Endpoints
-
-### GET `/api/prediction/{ticker}`
-Get complete prediction data for a ticker (includes OHLCV, news, sentiment, etc.)
-
-**Example:**
-```bash
-curl http://localhost:8000/api/prediction/AAPL
+```
+FINNHUB_API_KEY=your_key_here
 ```
 
-### GET `/api/market/{ticker}`
-Get OHLCV candlestick data for a ticker
+Start the server:
 
-**Query Parameters:**
-- `days` (optional): Number of days of historical data (default: 180)
-
-**Example:**
 ```bash
-curl http://localhost:8000/api/market/AAPL?days=90
+uvicorn backend.app:app --reload
 ```
 
-### GET `/api/news/{ticker}`
-Get company news for a ticker
+**Frontend:**
 
-**Query Parameters:**
-- `days` (optional): Number of days of news to fetch (default: 7)
-
-**Example:**
 ```bash
-curl http://localhost:8000/api/news/AAPL?days=30
+cd frontend
+npm install
+npm run dev
 ```
 
-### GET `/api/tickers`
-Get list of available tickers
+Open [http://localhost:5173](http://localhost:5173).
 
-## Data Sources
+---
 
-- **Market Data**: Finnhub API (OHLCV candlestick data)
-- **News**: Finnhub API (company news)
-- **Predictions**: Internal ML models (when available)
+## Docker
 
-## Caching
+Build and run everything with a single command:
 
-The Finnhub service implements in-memory caching with a 5-minute TTL to:
-- Reduce API calls
-- Handle rate limits gracefully
-- Improve response times
+```bash
+docker-compose up --build
+```
 
-## Error Handling
+This spins up:
+- **Backend** on `http://localhost:8000`
+- **Frontend** on `http://localhost:80`
 
-- API errors are logged and cached data is returned when available
-- Rate limits (429) trigger fallback to cached data
-- Missing data returns empty arrays instead of errors
+The frontend Nginx container reverse-proxies all `/api` requests to the backend container, so everything just works.
 
-## Security
+To stop:
 
-- API keys are never exposed to the frontend
-- All external API calls are made server-side only
-- Environment variables are loaded securely using python-dotenv
+```bash
+docker-compose down
+```
 
+---
 
+## Kubernetes
+
+If you want to deploy to a cluster, all the manifests are in `k8s/`.
+
+```bash
+# Create the namespace
+kubectl apply -f k8s/namespace.yaml
+
+# Create the secret with your Finnhub key
+kubectl create secret generic quantara-secrets \
+  --namespace=quantara \
+  --from-literal=FINNHUB_API_KEY=your_key_here
+
+# Build and tag images (adjust registry as needed)
+docker build -t quantara-backend:latest ./backend
+docker build -t quantara-frontend:latest ./frontend
+
+# Deploy
+kubectl apply -f k8s/backend.yaml
+kubectl apply -f k8s/frontend.yaml
+
+# (Optional) Apply ingress if you have an ingress controller
+kubectl apply -f k8s/ingress.yaml
+```
+
+The backend runs as a `ClusterIP` service (internal only), and the frontend runs as a `LoadBalancer` service on port 80. Both deployments run 2 replicas with health checks configured.
+
+---
+
+## API Reference
+
+| Method | Endpoint | Description |
+|---|---|---|
+| `GET` | `/api/tickers` | List all available tickers |
+| `GET` | `/api/prediction/{ticker}` | Full prediction (OHLCV, forecast, sentiment, headlines) |
+| `GET` | `/api/backtest/{ticker}` | Backtest metrics and equity curve |
+| `GET` | `/api/ohlcv/{ticker}?days=180` | Raw OHLCV candlestick data |
+| `GET` | `/api/news/{ticker}?days=7` | Recent company news headlines |
+| `GET` | `/api/sentiment/{ticker}?days=30` | Daily sentiment time-series |
+| `GET` | `/api/doctor?ticker=AAPL` | Diagnostics and contract validation |
+
+---
+
+## Roadmap
+
+- [x] Interactive candlestick chart with volume overlay
+- [x] ML-based directional forecasting with confidence bands
+- [x] Finnhub news integration with sentiment scoring
+- [x] Backtesting engine with KPI dashboard and equity curve
+- [x] Real-time headlines feed with sentiment scores
+- [x] Ticker search across tracked equities
+- [x] Containerized with Docker and Docker Compose
+- [x] Kubernetes deployment manifests with health checks
+- [ ] FinBERT transformer-based sentiment analysis
+- [ ] Portfolio-level multi-ticker view
+
+---
+
+## License
+
+This project is for educational and research purposes.
+
+---
+
+## Author
+
+**Deep Sahu** — [LinkedIn](https://linkedin.com/in/deepsahu1) · [Portfolio](https://deepsahu.vercel.app) · [GitHub](https://github.com/deepsahu21)
