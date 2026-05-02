@@ -32,11 +32,13 @@ def load_model_data(return_meta: bool = False, return_schema: bool = False):
     feature_schema = list(X.columns)
 
     # -----------------------------
-    # Scale features (return as DataFrame to keep names)
+    # Scale features (fit on 80% train split only to prevent leakage)
     # -----------------------------
+    split_idx = int(len(X) * 0.8)
     scaler = StandardScaler()
+    scaler.fit(X.iloc[:split_idx])
     X_scaled = pd.DataFrame(
-        scaler.fit_transform(X),
+        scaler.transform(X),
         columns=feature_schema
     )
 

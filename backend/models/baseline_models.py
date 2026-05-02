@@ -9,7 +9,7 @@ from keras.layers import MultiHeadAttention, LayerNormalization, Dense, Input, F
 from keras.optimizers import Adam
 from keras.callbacks import EarlyStopping, ReduceLROnPlateau
 import pandas as pd
-from evaluate import evaluate_model
+from backend.models.evaluate import evaluate_model
 import numpy as np
 
 
@@ -91,21 +91,6 @@ cat = CatBoostRegressor(
 )
 
 
-# Fit models
-
-xg.fit(X_train, y_train)
-print("fitted xgboost model")
-
-rf.fit(X_train, y_train)
-print("fitted random forest model")
-
-lgbm.fit(X_train, y_train)
-print("fitted lightGBM model")
-
-cat.fit(X_train, y_train)
-print("fitted catboost model")
-
-
 # ===== LSTM Model =====
 def build_lstm_model(n_features, lstm_units=128, dense_units=64, dropout_rate=0.2):
     """Build LSTM model for tabular regression
@@ -139,27 +124,6 @@ def build_lstm_model(n_features, lstm_units=128, dense_units=64, dropout_rate=0.
     model = Model(inputs=inputs, outputs=outputs)
     model.compile(optimizer=Adam(learning_rate=0.001), loss='mse', metrics=['mae'])
     return model
-
-lstm = build_lstm_model(n_features, lstm_units=128, dense_units=64, dropout_rate=0.2)
-print("built LSTM model")
-
-# Callbacks for LSTM
-lstm_callbacks = [
-    EarlyStopping(monitor='val_loss', patience=10, restore_best_weights=True),
-    ReduceLROnPlateau(monitor='val_loss', factor=0.5, patience=5, min_lr=1e-6)
-]
-
-# Fit LSTM (with validation split)
-lstm.fit(
-    X_train_scaled, y_train.values,
-    validation_split=0.1,
-    epochs=50,
-    batch_size=256,
-    callbacks=lstm_callbacks,
-    verbose=0
-)
-print("fitted LSTM model")
-
 
 # ===== Transformer Model =====
 def build_transformer_model(n_features, d_model=128, num_heads=4, num_layers=2, dropout_rate=0.2):
@@ -203,27 +167,6 @@ def build_transformer_model(n_features, d_model=128, num_heads=4, num_layers=2, 
     model.compile(optimizer=Adam(learning_rate=0.001), loss='mse', metrics=['mae'])
     return model
 
-transformer = build_transformer_model(n_features, d_model=128, num_heads=4, num_layers=2, dropout_rate=0.2)
-print("built Transformer model")
-
-# Callbacks for Transformer
-transformer_callbacks = [
-    EarlyStopping(monitor='val_loss', patience=10, restore_best_weights=True),
-    ReduceLROnPlateau(monitor='val_loss', factor=0.5, patience=5, min_lr=1e-6)
-]
-
-# Fit Transformer (with validation split)
-transformer.fit(
-    X_train_scaled, y_train.values,
-    validation_split=0.1,
-    epochs=50,
-    batch_size=256,
-    callbacks=transformer_callbacks,
-    verbose=0
-)
-print("fitted Transformer model")
-
-
 # ===== Wrapper classes for neural network models =====
 class ScaledModelWrapper:
     """Wrapper to handle scaling for neural network models"""
@@ -237,14 +180,60 @@ class ScaledModelWrapper:
         X_scaled = self.scaler.transform(X)
         return self.model.predict(X_scaled, verbose=0).flatten()
 
-# Wrap neural network models
-lstm_wrapped = ScaledModelWrapper(lstm, scaler)
-transformer_wrapped = ScaledModelWrapper(transformer, scaler)
-
-
-# Record accuracy and evaluate models
 
 if __name__ == "__main__":
+    # Fit models
+    xg.fit(X_train, y_train)
+    print("fitted xgboost model")
+
+    rf.fit(X_train, y_train)
+    print("fitted random forest model")
+
+    lgbm.fit(X_train, y_train)
+    print("fitted lightGBM model")
+
+    cat.fit(X_train, y_train)
+    print("fitted catboost model")
+
+    lstm = build_lstm_model(n_features, lstm_units=128, dense_units=64, dropout_rate=0.2)
+    print("built LSTM model")
+
+    lstm_callbacks = [
+        EarlyStopping(monitor='val_loss', patience=10, restore_best_weights=True),
+        ReduceLROnPlateau(monitor='val_loss', factor=0.5, patience=5, min_lr=1e-6)
+    ]
+
+    lstm.fit(
+        X_train_scaled, y_train.values,
+        validation_split=0.1,
+        epochs=50,
+        batch_size=256,
+        callbacks=lstm_callbacks,
+        verbose=0
+    )
+    print("fitted LSTM model")
+
+    transformer = build_transformer_model(n_features, d_model=128, num_heads=4, num_layers=2, dropout_rate=0.2)
+    print("built Transformer model")
+
+    transformer_callbacks = [
+        EarlyStopping(monitor='val_loss', patience=10, restore_best_weights=True),
+        ReduceLROnPlateau(monitor='val_loss', factor=0.5, patience=5, min_lr=1e-6)
+    ]
+
+    transformer.fit(
+        X_train_scaled, y_train.values,
+        validation_split=0.1,
+        epochs=50,
+        batch_size=256,
+        callbacks=transformer_callbacks,
+        verbose=0
+    )
+    print("fitted Transformer model")
+
+    lstm_wrapped = ScaledModelWrapper(lstm, scaler)
+    transformer_wrapped = ScaledModelWrapper(transformer, scaler)
+
     # RELAXED THRESHOLDS for increased signal frequency while preserving edge
     # These are calibrated to increase Strong+Moderate signals without destroying honesty
     RELAXED_THRESHOLDS = {

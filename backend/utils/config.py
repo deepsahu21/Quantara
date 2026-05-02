@@ -1,6 +1,8 @@
+from pathlib import Path
 import pandas as pd
 
-df = pd.read_csv("C:/Users/deeps/Desktop/projects/Quantara/backend/data/processed_data/all_stocks_long.csv")
+_DATA_PATH = Path(__file__).resolve().parents[1] / "data" / "processed_data" / "all_stocks_long.csv"
+df = pd.read_csv(_DATA_PATH)
 
 # Look for rows where date isn’t YYYY-MM-DD
 bad_dates = df[~df["date"].astype(str).str.match(r"\d{4}-\d{2}-\d{2}")]

@@ -1,8 +1,9 @@
+from pathlib import Path
 import pandas as pd
 
-
+_BACKEND_DIR = Path(__file__).resolve().parents[1]
 #Path to the wide format file
-wide_path = "C:/Users/deeps/Desktop/projects/Quantara/backend/data/raw_data/stocks.csv"
+wide_path = _BACKEND_DIR / "data" / "raw_data" / "stocks.csv"
 
 #Read the wide format CSV
 df = pd.read_csv(wide_path, header = [0,1])
@@ -46,5 +47,5 @@ long_df = long_df[["date","ticker","open_price","high_price","low_price","close_
 long_df = long_df.dropna(subset=["open_price", "high_price", "low_price", "close_price", "volume"])
 
 #Save the output
-output_path = "C:/Users/deeps/Desktop/projects/Quantara/backend/data/processed_data/all_stocks_long.csv"
+output_path = _BACKEND_DIR / "data" / "processed_data" / "all_stocks_long.csv"
 long_df.to_csv(output_path, index = False)
