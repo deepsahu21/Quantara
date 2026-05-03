@@ -8,8 +8,11 @@
 [![FastAPI](https://img.shields.io/badge/FastAPI-009688?style=flat&logo=fastapi&logoColor=white)](https://fastapi.tiangolo.com/)
 [![Python](https://img.shields.io/badge/Python-3.10+-3776AB?style=flat&logo=python&logoColor=white)](https://www.python.org/)
 [![License](https://img.shields.io/badge/license-Educational%20%2F%20Research-8B949E?style=flat)]()
+[![Live demo](https://img.shields.io/badge/live%20demo-quantara--ds.vercel.app-000000?style=flat&logo=vercel)](https://quantara-ds.vercel.app/)
 
 </div>
+
+**Live app:** **[quantara-ds.vercel.app](https://quantara-ds.vercel.app/)** — open the dashboard in your browser (the built-in demo snapshot loads without a backend).
 
 **Quantara** is a full-stack trading intelligence dashboard. Choose a ticker and get **OHLCV charting**, a **machine-learned next-day directional forecast** with confidence, a **rolling news-sentiment series**, **strategy backtests** with an equity curve and risk metrics, and a **live headlines feed** with per-article sentiment — coordinated through a single FastAPI backend and a React + Vite frontend.
 
@@ -24,7 +27,7 @@ The first visit can show a **static demo snapshot** (no API required for the ini
 | **Unified view** | Market structure, model output, sentiment, and historical simulation in one layout |
 | **Real data path** | Yahoo Finance–style prices via `yfinance`, headlines and metadata via **Finnhub** |
 | **ML pipeline** | Feature engineering, ensemble-style forecasting (e.g. XGBoost / CatBoost family), backtesting services |
-| **Production-shaped ops** | **Docker Compose** for local full stack, **Kubernetes** manifests for cluster deploys, Nginx fronting the SPA |
+| **Production-shaped ops** | **Docker Compose** for local full stack, **Kubernetes** manifests for cluster deploys |
 
 ---
 
@@ -74,9 +77,6 @@ flowchart LR
   subgraph client [Browser]
     UI[React + Vite]
   end
-  subgraph edge [Optional]
-    NG[Nginx]
-  end
   subgraph api [Backend]
     FA[FastAPI]
     ML[Models and services]
@@ -87,13 +87,11 @@ flowchart LR
     FH[Finnhub API]
   end
   UI -->|"/api"| FA
-  NG --> UI
-  NG -->|proxy /api| FA
   ML --> YF
   ML --> FH
 ```
 
-- **Frontend** talks to **`/api`** (dev proxy to Uvicorn, or Nginx → backend in Docker/K8s).
+- **Frontend** talks to **`/api`** (in local dev, Vite proxies to Uvicorn; in Docker/K8s the same path is routed to the API service).
 - **Backend** aggregates OHLCV, runs inference and backtests, normalizes news and sentiment for the UI contract.
 
 ---
@@ -106,7 +104,7 @@ flowchart LR
 | **API** | Python 3.10+, FastAPI, Uvicorn |
 | **ML / analytics** | scikit-learn ecosystem, XGBoost, CatBoost, custom feature and backtest services |
 | **Data** | `yfinance`, Finnhub REST |
-| **Packaging** | Docker, Docker Compose; Nginx for static + reverse proxy; Kubernetes manifests under `k8s/` |
+| **Packaging** | Docker, Docker Compose; Kubernetes manifests under `k8s/` |
 
 ---
 
@@ -126,7 +124,6 @@ Quantara/
 │   │   ├── App.jsx
 │   │   ├── data/              # Demo snapshot data (optional first load)
 │   │   └── components/
-│   ├── nginx.conf
 │   ├── Dockerfile
 │   └── package.json
 ├── k8s/                       # Namespace, deployments, services, ingress, secrets
@@ -181,6 +178,26 @@ App default: **http://localhost:5173** (Vite proxies `/api` to the backend in de
 
 ---
 
+## Deploy the frontend on Vercel (demo)
+
+The UI is a **Vite** app under `frontend/`. The **demo snapshot** (AAPL mock on first load) works on a static host with **no backend**, so Vercel is enough to show the full dashboard until users pick another ticker.
+
+1. Push your repo to GitHub (or GitLab / Bitbucket).
+2. Go to [vercel.com](https://vercel.com), sign in, and **Add New → Project** and import that repository.
+3. Under **Configure Project**:
+   - **Root Directory:** set to `frontend` (important if the repo is the monorepo, not only the SPA folder).
+   - **Framework Preset:** Vite (or “Other” with **Build Command** `npm run build` and **Output Directory** `dist`).
+   - **Build Command:** `npm run build` (default for Vite).
+   - **Output Directory:** `dist`.
+   - **Install Command:** `npm install`.
+4. Click **Deploy**. After the build, your site URL (or your custom domain like **[quantara-ds.vercel.app](https://quantara-ds.vercel.app/)**) serves the app.
+
+**Demo-only:** no environment variables are required; the first paint uses the built-in mock.
+
+**Live API later:** host your FastAPI backend on a public URL (Railway, Render, Fly.io, your own VPS, etc.), add that origin to **CORS** in `backend/app.py`, and point the frontend at it (for example via a `VITE_*` base URL in the build and a small change in the client, or Vercel **rewrites** that proxy `/api` to your API). Until then, ticker search and live fetches may fail in production, but the initial demo still renders.
+
+---
+
 ## Docker Compose
 
 ```bash
@@ -188,7 +205,7 @@ docker-compose up --build
 ```
 
 - **API:** http://localhost:8000  
-- **UI:** http://localhost:80 (Nginx serves the SPA and proxies `/api` to the backend)
+- **UI:** http://localhost:80 (frontend container; proxies `/api` to the backend)
 
 ```bash
 docker-compose down
@@ -259,4 +276,4 @@ This project is for **educational and research** purposes. Not financial advice.
 
 ## Author
 
-**Deep Sahu** — [LinkedIn](https://linkedin.com/in/deepsahu1) · [Portfolio](https://deepsahu.vercel.app) · [GitHub](https://github.com/deepsahu21)
+**Deep Sahu** — [LinkedIn](https://linkedin.com/in/deepsahu1) · [Portfolio](https://deepsahu.vercel.app) · [Quantara (live)](https://quantara-ds.vercel.app/) · [GitHub](https://github.com/deepsahu21)
